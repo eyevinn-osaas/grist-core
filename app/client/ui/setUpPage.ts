@@ -13,6 +13,9 @@ const G = getBrowserGlobals('document', 'window');
 export interface SetUpPageOptions {
   /** Defaults to true. */
   attachTheme?: boolean;
+
+  /** Defaults to true. */
+  useApi?: boolean;
 }
 
 /**
@@ -23,9 +26,9 @@ export function setUpPage(
   buildPage: (appModel: AppModel) => DomContents,
   options: SetUpPageOptions = {}
 ) {
-  const {attachTheme = true} = options;
+  const {attachTheme = true, useApi = true} = options;
   setUpErrorHandling();
-  const topAppModel = TopAppModelImpl.create(null, {}, newUserAPIImpl(), {attachTheme});
+  const topAppModel = TopAppModelImpl.create(null, {}, newUserAPIImpl(), {attachTheme, useApi});
   attachCssRootVars(topAppModel.productFlavor);
   addViewportTag();
 

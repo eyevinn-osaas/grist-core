@@ -151,6 +151,9 @@ export interface AppModel {
 export interface TopAppModelOptions {
   /** Defaults to true. */
   attachTheme?: boolean;
+
+  /** Defaults to true. */
+  useApi?: boolean;
 }
 
 export class TopAppModelImpl extends Disposable implements TopAppModel {
@@ -181,7 +184,7 @@ export class TopAppModelImpl extends Disposable implements TopAppModel {
     this.productFlavor = getFlavor(window.gristConfig && window.gristConfig.org);
     this._gristConfig = window.gristConfig;
     this._widgets = new AsyncCreate<ICustomWidget[]>(async () => {
-      const widgets = await this.api.getWidgets();
+      const widgets = this.options.useApi ? (await this.api.getWidgets()) : [];
       this.customWidgets.set(widgets);
       return widgets;
     });
@@ -191,7 +194,9 @@ export class TopAppModelImpl extends Disposable implements TopAppModel {
     this.autoDispose(subscribe(this.currentSubdomain, (use) => this.initialize()));
     this.plugins = this._gristConfig?.plugins || [];
 
-    this.fetchUsersAndOrgs().catch(reportError);
+    if (this.options.useApi) {
+      this.fetchUsersAndOrgs().catch(reportError);
+    }
   }
 
   public initialize(): void {
@@ -248,6 +253,10 @@ export class TopAppModelImpl extends Disposable implements TopAppModel {
 
   private async _doInitialize() {
     this.appObs.set(null);
+    if (this.options.useApi === false) {
+      AppModelImpl.create(this.appObs, this, null, null, {error: 'zing', status: 500});
+      return;
+    }
     try {
       const {user, org, orgError} = await this.api.getSessionActive();
       if (this.isDisposed()) { return; }
