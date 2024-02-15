@@ -184,7 +184,7 @@ export class TopAppModelImpl extends Disposable implements TopAppModel {
     this.productFlavor = getFlavor(window.gristConfig && window.gristConfig.org);
     this._gristConfig = window.gristConfig;
     this._widgets = new AsyncCreate<ICustomWidget[]>(async () => {
-      const widgets = this.options.useApi ? (await this.api.getWidgets()) : [];
+      const widgets = this.options.useApi === false ? [] : await this.api.getWidgets();
       this.customWidgets.set(widgets);
       return widgets;
     });
@@ -194,7 +194,7 @@ export class TopAppModelImpl extends Disposable implements TopAppModel {
     this.autoDispose(subscribe(this.currentSubdomain, (use) => this.initialize()));
     this.plugins = this._gristConfig?.plugins || [];
 
-    if (this.options.useApi) {
+    if (this.options.useApi !== false) {
       this.fetchUsersAndOrgs().catch(reportError);
     }
   }
@@ -254,7 +254,7 @@ export class TopAppModelImpl extends Disposable implements TopAppModel {
   private async _doInitialize() {
     this.appObs.set(null);
     if (this.options.useApi === false) {
-      AppModelImpl.create(this.appObs, this, null, null, {error: 'zing', status: 500});
+      AppModelImpl.create(this.appObs, this, null, null, {error: 'no-api', status: 500});
       return;
     }
     try {
