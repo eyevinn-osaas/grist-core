@@ -15,5 +15,6 @@
 !plugins
 !test
 !ext
+!osc-entrypoint.sh
 **/_build
 /sandbox/pyodide/worker/node_modules
