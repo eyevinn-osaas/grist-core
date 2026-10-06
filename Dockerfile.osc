@@ -22,7 +22,7 @@ ENV GRIST_SKIP_EXT_AUTOSETUP=1
 COPY package.json yarn.lock /grist/
 COPY buildtools/install_edition.sh /grist/buildtools/install_edition.sh
 RUN \
-  yarn install --prod --frozen-lockfile --verbose --network-timeout 600000
+  yarn install --prod --frozen-lockfile --network-timeout 600000
 
 FROM prod-builder AS builder
 
@@ -30,7 +30,7 @@ FROM prod-builder AS builder
 # Add at global level gyp deps to build sqlite3 for prod
 # then create node_modules_prod that will be the node_modules of final image
 RUN \
-  yarn install --frozen-lockfile --verbose --network-timeout 600000
+  yarn install --frozen-lockfile --network-timeout 600000
 
 # Install any extra node dependencies (at root level, to avoid having to wrestle
 # with merging them).
@@ -38,7 +38,7 @@ COPY --from=ext / /grist/ext
 RUN \
  mkdir /node_modules && \
  cd /grist/ext && \
- { if [ -e package.json ] ; then yarn install --frozen-lockfile --modules-folder=/node_modules --verbose --network-timeout 600000 ; fi }
+ { if [ -e package.json ] ; then yarn install --frozen-lockfile --modules-folder=/node_modules --network-timeout 600000 ; fi }
 
 # Build node code.
 COPY tsconfig.json /grist
